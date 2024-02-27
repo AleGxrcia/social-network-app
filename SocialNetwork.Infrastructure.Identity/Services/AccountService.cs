@@ -113,6 +113,26 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             return response;
         }
 
+        public async Task<string> ConfirmAccountAsync(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return "No accounts registered with this user";
+            }
+
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return $"Account confirm for {user.Email}. You can now use the app.";
+            }
+            else
+            {
+                return $"An error ocurred while confirming {user.Email}.";
+            }
+        }
+
         private async Task<string> SendVerificationEmailUri(ApplicationUser user, string origin)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
