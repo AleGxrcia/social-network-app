@@ -133,6 +133,59 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             }
         }
 
+        public async Task<ForgotPasswordResponse> ForgotPasswordAsync(ForgotPasswordRequest request, string origin)
+        {
+            ForgotPasswordResponse response = new()
+            {
+                HasError = false
+            };
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Error = $"No Accounts registered with {user.UserName}";
+                return response;
+            }
+
+            var verificationUri = await SendForgotPasswordUri(user, origin);
+            await _emailService.SendAsync(new Core.Application.Dtos.Email.EmailRequest
+            {
+                To = user.Email,
+                Body = $"Please reset your password visiting this URL {verificationUri}",
+                Subject = "Reset Registration"
+            });
+
+            return response;
+        }
+
+        public async Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            ResetPasswordResponse response = new()
+            {
+                HasError = false
+            };
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Error = $"No Accounts registered with {user.UserName}";
+                return response;
+            }
+
+            var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+            if (!result.Succeeded)
+            {
+                response.HasError = true;
+                response.Error = $"An error occurred while reset password";
+                return response;
+            }
+
+            return response;
+        }
+
         private async Task<string> SendVerificationEmailUri(ApplicationUser user, string origin)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -141,6 +194,17 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             var Uri = new Uri(string.Concat($"{origin}/", route));
             var verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "userId", user.Id);
             verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "token", code);
+
+            return verificationUri;
+        }
+
+        private async Task<string> SendForgotPasswordUri(ApplicationUser user, string origin)
+        {
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var route = "User/ResetPassword";
+            var Uri = new Uri(string.Concat($"{origin}/", route));
+            var verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "token", code);
 
             return verificationUri;
         }
