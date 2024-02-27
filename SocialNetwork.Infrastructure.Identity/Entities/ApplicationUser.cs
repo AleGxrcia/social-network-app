@@ -7,7 +7,5 @@ namespace SocialNetwork.Infrastructure.Identity.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? ProfilePicture { get; set; }
-        public bool? IsVerified { get; set; }
-
     }
 }
