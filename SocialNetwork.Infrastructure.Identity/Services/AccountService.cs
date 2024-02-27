@@ -55,6 +55,10 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             return response;
         }
 
+        public async Task SignOutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
     }
 
 }
