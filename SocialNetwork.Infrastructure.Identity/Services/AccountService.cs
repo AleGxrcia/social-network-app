@@ -59,6 +59,72 @@ namespace SocialNetwork.Infrastructure.Identity.Services
         {
             await _signInManager.SignOutAsync();
         }
+
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, string origin)
+        {
+            RegisterResponse response = new()
+            {
+                HasError = false
+            };
+
+            var userWithSameUserName = await _userManager.FindByNameAsync(request.Username);
+            if (userWithSameUserName != null)
+            {
+                response.HasError = true;
+                response.Error = $"Username '{request.Username}' is already taken.";
+                return response;
+            }
+
+            var userWithSameEmail = await _userManager.FindByEmailAsync(request.Email);
+            if (userWithSameEmail != null)
+            {
+                response.HasError = true;
+                response.Error = $"Email '{request.Email}' is already registered.";
+                return response;
+            }
+
+            var user = new ApplicationUser
+            {
+                Email = request.Email,
+                UserName = request.Username,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                ProfilePicture = request.ProfilePicture
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (result.Succeeded)
+            {
+                var verificationUri = await SendVerificationEmailUri(user, origin);
+                await _emailService.SendAsync(new Core.Application.Dtos.Email.EmailRequest
+                {
+                    To = user.Email,
+                    Body = $"Please confirm your account visiting this URL {verificationUri}",
+                    Subject = "Confirm Registration"
+                });
+            }
+            else
+            {
+                response.HasError = true;
+                response.Error = $"An error ocurred trying to register the user.";
+                return response;
+            }
+
+            return response;
+        }
+
+        private async Task<string> SendVerificationEmailUri(ApplicationUser user, string origin)
+        {
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var route = "User/ConfirmEmail";
+            var Uri = new Uri(string.Concat($"{origin}/", route));
+            var verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "userId", user.Id);
+            verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "token", code);
+
+            return verificationUri;
+        }
+
     }
 
 }
