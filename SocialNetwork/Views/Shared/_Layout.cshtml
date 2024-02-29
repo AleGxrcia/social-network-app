@@ -1,13 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http;
-@using SocialNetwork.Core.Application.Dtos.Account
-@using SocialNetwork.Core.Application.Helpers;
-@using SocialNetwork.Core.Application.ViewModels.User;
-@inject IHttpContextAccessor httpContextAccessor;
-@{
-    var User = httpContextAccessor.HttpContext.Session.Get<AuthenticationResponse>("user");
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -39,7 +30,7 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid">
+    <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
