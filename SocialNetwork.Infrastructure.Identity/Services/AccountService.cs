@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SocialNetwork.Infrastructure.Identity.Services
 {
-    public class AccountService
+    public class AccountService : IAccountService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -60,7 +60,7 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             await _signInManager.SignOutAsync();
         }
 
-        public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, string origin)
+        public async Task<RegisterResponse> RegisterUserAsync(RegisterRequest request, string origin)
         {
             RegisterResponse response = new()
             {
@@ -95,6 +95,7 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {
+                response.Id = user.Id;
                 var verificationUri = await SendVerificationEmailUri(user, origin);
                 await _emailService.SendAsync(new Core.Application.Dtos.Email.EmailRequest
                 {
@@ -111,6 +112,29 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             }
 
             return response;
+        }
+
+        public async Task<string> UpdateUserAsync(RegisterRequest request, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return "User not found.";
+            }
+
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.ProfilePicture = request.ProfilePicture;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return $"You can now use the app.";
+            }
+            else
+            {
+                return $"An error ocurred trying to register the user.";
+            }
         }
 
         public async Task<string> ConfirmAccountAsync(string userId, string token)
