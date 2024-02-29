@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SocialNetwork.Core.Application.Interfaces.Services;
 using SocialNetwork.Infrastructure.Identity.Contexts;
 using SocialNetwork.Infrastructure.Identity.Entities;
+using SocialNetwork.Infrastructure.Identity.Services;
 
 namespace SocialNetwork.Infrastructure.Identity
 {
@@ -29,6 +31,10 @@ namespace SocialNetwork.Infrastructure.Identity
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
 
             services.AddAuthentication();
+            #endregion
+
+            #region Services
+            services.AddTransient<IAccountService, AccountService>();
             #endregion
         }
     }
