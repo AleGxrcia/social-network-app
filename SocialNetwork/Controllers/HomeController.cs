@@ -1,32 +1,41 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.Models;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Core.Application.Interfaces.Services;
+using SocialNetwork.Core.Application.ViewModels.Post;
+using SocialNetwork.Middlewares;
 
 namespace SocialNetwork.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IPostService _postService;
+        private readonly ValidateUserSession _validateUserSession;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IPostService postService, ValidateUserSession validateUserSession)
         {
-            _logger = logger;
+            _postService = postService;
+            _validateUserSession = validateUserSession;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View();
-        }
+            if (!_validateUserSession.HasUser())
+            {
+                return RedirectToRoute(new { controller = "User", action = "Login" });
+            }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (id.HasValue)
+            {
+                var post = await _postService.GetByIdSaveViewModel(id.Value);
+                ViewBag.Posts = await _postService.GetAllViewModelWithInclude();
+                return View(post);
+            }
+            else
+            {
+                ViewBag.Posts = await _postService.GetAllViewModelWithInclude();
+                return View(new SavePostViewModel());
+            }
         }
     }
 }
