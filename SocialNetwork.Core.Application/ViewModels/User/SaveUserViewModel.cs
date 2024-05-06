@@ -1,36 +1,33 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 
 namespace SocialNetwork.Core.Application.ViewModels.User
 {
     public class SaveUserViewModel
     {
+        public string? Id { get; set; }
         [Required(ErrorMessage = "El {0} es requerido")]
         [Display(Name = "Nombre")]
         [DataType(DataType.Text)]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [Required(ErrorMessage = "El {0} es requerido")]
         [Display(Name = "Apellido")]
         [DataType(DataType.Text)]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
-        [Required(ErrorMessage = "El {0} es requerido")]
         [Display(Name = "Nombre de usuario")]
         [DataType(DataType.Text)]
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
-        [Required(ErrorMessage = "La {0} es requerida")]
         [Display(Name = "Contraseña")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]
-        [Required(ErrorMessage = "{0} es requerido")]
         [Display(Name = "Confirmar contraseña")]
         [DataType(DataType.Password)]
-        public string ConfirmPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "El {0} es requerido")]
         [Display(Name = "Correo electronico")]
@@ -39,7 +36,7 @@ namespace SocialNetwork.Core.Application.ViewModels.User
 
         [Required(ErrorMessage = "El {0} es requerido")]
         [Display(Name = "Telefono")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         [DataType(DataType.Upload)]
         [Display(Name = "Foto de perfil")]

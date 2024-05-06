@@ -56,5 +56,19 @@ namespace SocialNetwork.Core.Application.Services
             ResetPasswordRequest resetRequest = _mapper.Map<ResetPasswordRequest>(vm);
             return await _accountService.ResetPasswordAsync(resetRequest);
         }
+
+        public async Task<SaveUserViewModel> GetByIdAsync(string id)
+        {
+            AuthenticationResponse userResponse = await _accountService.GetUserByIdAsync(id);
+            SaveUserViewModel vm = _mapper.Map<SaveUserViewModel>(userResponse);
+            return vm;
+        }
+        
+        public async Task<UserViewModel> GetByUsernameAsync(string username)
+        {
+            AuthenticationResponse userResponse = await _accountService.GetUserByUsernameAsync(username);
+            UserViewModel vm = _mapper.Map<UserViewModel>(userResponse);
+            return vm;
+        }
     }
 }

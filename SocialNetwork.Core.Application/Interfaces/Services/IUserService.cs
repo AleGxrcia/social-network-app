@@ -7,6 +7,8 @@ namespace SocialNetwork.Core.Application.Interfaces.Services
     {
         Task<string> ConfirmEmailAsync(string userId, string token);
         Task<ForgotPasswordResponse> ForgotPasswordAsync(ForgotPasswordViewModel vm, string origin);
+        Task<SaveUserViewModel> GetByIdAsync(string id);
+        Task<UserViewModel> GetByUsernameAsync(string username);
         Task<AuthenticationResponse> LoginAsync(LoginViewModel vm);
         Task<RegisterResponse> RegisterAsync(SaveUserViewModel vm, string origin);
         Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordViewModel vm);

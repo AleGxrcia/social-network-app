@@ -20,15 +20,23 @@ namespace SocialNetwork.Infrastructure.Identity
             }
             else
             {
-                var connectionString = config.GetConnectionString("IdentityConnection");
                 services.AddDbContext<IdentityContext>(options =>
-                                            options.UseSqlServer(connectionString,
-                                            m => m.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
+                {
+                    options.EnableSensitiveDataLogging();
+                    options.UseSqlServer(config.GetConnectionString("IdentityConnection"),
+                    m => m.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName));
+                });
             }
             #endregion
 
             #region Identity
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/User";
+                options.AccessDeniedPath = "/User/AccessDenied";
+            });
 
             services.AddAuthentication();
             #endregion

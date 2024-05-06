@@ -3,6 +3,7 @@ using SocialNetwork.Core.Application.Dtos.Account;
 using SocialNetwork.Core.Application.Interfaces.Services;
 using SocialNetwork.Core.Application.ViewModels.User;
 using SocialNetwork.Core.Application.Helpers;
+using SocialNetwork.Middlewares;
 
 namespace WebApp.SocialNetwork.Controllers
 {
@@ -15,11 +16,13 @@ namespace WebApp.SocialNetwork.Controllers
             _userService = userService;
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         public IActionResult Login()
         {
             return View(new LoginViewModel());
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
@@ -49,12 +52,14 @@ namespace WebApp.SocialNetwork.Controllers
             return RedirectToRoute(new { controller = "User", action = "Login" });
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         public IActionResult Register()
         {
             return View(new SaveUserViewModel());
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(LoginAuthorize))]
         public async Task<IActionResult> Register(SaveUserViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -73,25 +78,28 @@ namespace WebApp.SocialNetwork.Controllers
 
             if (response.Id != null)
             {
-                vm.ProfilePicture = UploadFile(vm.File, response.Id);
+                vm.ProfilePicture = UploadFilesHelper.UploadFile(vm.File, response.Id);
                 await _userService.UpdateAsync(vm, response.Id);
             }
 
             return RedirectToRoute(new { controller = "User", action = "Login" });
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             string response = await _userService.ConfirmEmailAsync(userId, token);
             return View("ConfirmEmail", response);
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         public IActionResult ForgotPassword()
         {
             return View(new ForgotPasswordViewModel());
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(LoginAuthorize))]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -112,12 +120,14 @@ namespace WebApp.SocialNetwork.Controllers
             return RedirectToRoute(new { controller = "User", action = "Login" });
         }
 
+        [ServiceFilter(typeof(LoginAuthorize))]
         public IActionResult ResetPassword(string token)
         {
             return View(new ResetPasswordViewModel { Token = token });
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(LoginAuthorize))]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -139,50 +149,6 @@ namespace WebApp.SocialNetwork.Controllers
         public IActionResult AccessDenied()
         {
             return View();
-        }
-
-        private string UploadFile(IFormFile file, string id, bool isEditMode = false, string imagePath = "")
-        {
-            if (isEditMode && file == null)
-            {
-                return imagePath;
-            }
-
-            //get directory path
-            string basePath = $"/Images/Users/{id}";
-            string path = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot{basePath}");
-
-            //create folder if no exist
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            //get file path
-            Guid guid = Guid.NewGuid();
-            FileInfo fileInfo = new(file.FileName);
-            string filename = guid + fileInfo.Extension;
-
-            string fileNameWithPath = Path.Combine(path, filename);
-
-            using (var stream = new FileStream(fileNameWithPath, FileMode.Create))
-            {
-                file.CopyTo(stream);
-            }
-
-            if (isEditMode)
-            {
-                string[] oldImagePart = imagePath.Split("/");
-                string oldImageName = oldImagePart[^1];
-                string completeImageOldPath = Path.Combine(path, oldImageName);
-
-                if (System.IO.File.Exists(completeImageOldPath))
-                {
-                    System.IO.File.Delete(completeImageOldPath);
-                }
-            }
-
-            return $"{basePath}/{filename}";
         }
     }
 }

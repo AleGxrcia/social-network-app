@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using SocialNetwork.Core.Application.Dtos.Account;
 using SocialNetwork.Core.Application.Interfaces.Services;
@@ -51,6 +52,7 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             response.Username = user.UserName;
             response.Email = user.Email;
             response.IsVerified = user.EmailConfirmed;
+            response.ProfilePicture = user.ProfilePicture;
 
             return response;
         }
@@ -85,10 +87,11 @@ namespace SocialNetwork.Infrastructure.Identity.Services
 
             var user = new ApplicationUser
             {
-                Email = request.Email,
                 UserName = request.Username,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.Phone,
                 ProfilePicture = request.ProfilePicture
             };
 
@@ -124,16 +127,18 @@ namespace SocialNetwork.Infrastructure.Identity.Services
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
+            user.Email = request.Email;
+            user.PhoneNumber = request.Phone;
             user.ProfilePicture = request.ProfilePicture;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                return $"You can now use the app.";
+                return $"Update succesfully.";
             }
             else
             {
-                return $"An error ocurred trying to register the user.";
+                return $"An error ocurred trying to update the user.";
             }
         }
 
@@ -210,6 +215,55 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             return response;
         }
 
+        public async Task<AuthenticationResponse> GetUserByIdAsync(string id)
+        {
+            AuthenticationResponse response = new();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Error = "User not found";
+                return response;
+            }
+
+            response.Id = user.Id;
+            response.FirstName = user.FirstName;
+            response.LastName = user.LastName;
+            response.Username = user.UserName;
+            response.Email = user.Email;
+            response.Phone = user.PhoneNumber;
+            response.IsVerified = user.EmailConfirmed;
+            response.ProfilePicture = user.ProfilePicture;
+
+            return response;
+        }
+
+        public async Task<AuthenticationResponse> GetUserByUsernameAsync(string username)
+        {
+            AuthenticationResponse response = new();
+
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Error = $"User not found";
+                return response;
+            }
+
+            response.Id = user.Id;
+            response.FirstName = user.FirstName;
+            response.LastName = user.LastName;
+            response.Username = user.UserName;
+            response.Email = user.Email;
+            response.Phone = user.PhoneNumber;
+            response.IsVerified = user.EmailConfirmed;
+            response.ProfilePicture = user.ProfilePicture;
+
+            return response;
+        }
+
+
         private async Task<string> SendVerificationEmailUri(ApplicationUser user, string origin)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -217,7 +271,7 @@ namespace SocialNetwork.Infrastructure.Identity.Services
             var route = "User/ConfirmEmail";
             var Uri = new Uri(string.Concat($"{origin}/", route));
             var verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "userId", user.Id);
-            verificationUri = QueryHelpers.AddQueryString(Uri.ToString(), "token", code);
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", code);
 
             return verificationUri;
         }
