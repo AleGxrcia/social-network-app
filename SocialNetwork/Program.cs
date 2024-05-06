@@ -1,16 +1,22 @@
 using SocialNetwork.Core.Application;
+using SocialNetwork.Infrastructure.Persistence;
 using SocialNetwork.Infrastructure.Identity;
 using SocialNetwork.Infrastructure.Shared;
+using SocialNetwork.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
-builder.Services.AddApplicationLayer();
+builder.Services.AddSession();
+builder.Services.AddPersistenceInfrastructure(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
 builder.Services.AddSharedInfrastructure(builder.Configuration);
+builder.Services.AddApplicationLayer();
+
+builder.Services.AddScoped<LoginAuthorize>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<ValidateUserSession, ValidateUserSession>();
 
 var app = builder.Build();
 
