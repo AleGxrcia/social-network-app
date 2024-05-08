@@ -45,6 +45,7 @@
                     <form method="post" enctype="multipart/form-data" asp-controller="Post" asp-action="@(editMode ? "Edit":"CreatePost")">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Created" />
 
                         <div class="mb-3">
                             <textarea asp-for="Content" class="form-control" placeholder="What's on your mind? "></textarea>
