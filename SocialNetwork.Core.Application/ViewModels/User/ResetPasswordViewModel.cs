@@ -4,23 +4,23 @@ namespace SocialNetwork.Core.Application.ViewModels.User
 {
     public class ResetPasswordViewModel
     {
-        [Required(ErrorMessage = "Debe colocar el correo del usuario")]
-        [Display(Name = "Correo electronico")]
+        [Required(ErrorMessage = "You must enter the email")]
+        [Display(Name = "Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Debe tener un token")]
+        [Required(ErrorMessage = "You must enter a token")]
         [DataType(DataType.Text)]
         public string Token { get; set; }
 
-        [Required(ErrorMessage = "Debe colocar una contraseña")]
-        [Display(Name = "Contraseña")]
+        [Required(ErrorMessage = "You must enter a password")]
+        [Display(Name = "Password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]
-        [Required(ErrorMessage = "{0} es requerido")]
-        [Display(Name = "Confirmar contraseña")]
+        [Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
+        [Required(ErrorMessage = "{0} is required")]
+        [Display(Name = "Confirm Password")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
         public bool HasError { get; set; }

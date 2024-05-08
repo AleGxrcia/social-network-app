@@ -21,12 +21,12 @@
                         <i class="bi bi-plus-circle-fill"></i>
                         Add Friend
                     </button>
-                    @if (friends.Count > 0)
+                    @if (friends != null && friends.Count > 0)
                     {
                         @foreach (FriendViewModel friend in friends)
                         {
                             <div class="d-flex align-items-center mb-2">
-                                <img src="@friend.ProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @friend.Username" style="width: 50px; height: auto;">
+                                <img src="@friend.ProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @friend.Username" style="width: 50px; height: 50px;">
                                 <div class="flex-grow-1">
                                     <strong>@friend.FirstName @friend.LastName</strong>
                                     <p class="mb-0"><small>@friend.Username</small></p>
@@ -43,53 +43,56 @@
             </div>
         </div>
         <div class="col-6 offset-1">
-            @foreach (PostViewModel post in posts)
+            @if (posts != null && posts.Count > 0)
             {
-                <div class="card mt-3 card-box-shadow">
-                    <div class="card-header bg-white d-flex align-items-center">
-                        <img src="@post.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @post.UserName" style="width: 50px; height: auto;">
-                        <div>
-                            <strong>@post.UserName</strong>
-                            <p class="mb-0 text-muted text-end"><small>@post.Created.ToString()</small></p>
+                @foreach (PostViewModel post in posts)
+                {
+                    <div class="card mt-3 card-box-shadow">
+                        <div class="card-header bg-white d-flex align-items-center">
+                            <img src="@post.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @post.UserName" style="width: 50px; height: 50px;">
+                            <div>
+                                <strong>@post.UserName</strong>
+                                <p class="mb-0 text-muted text-end"><small>@post.Created.ToString()</small></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <p>@post.Content</p>
-                        @if (post.Attachment != null)
-                        {
-                            <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
-                        }
-                    </div>
-                    <div class="card-footer bg-white">
-                        @if (post.Comments.Count > 0)
-                        {
-                            <h5 class="mb-3">Comments</h5>
-                            foreach (CommentViewModel commentVm in post.Comments)
+                        <div class="card-body">
+                            <p>@post.Content</p>
+                            @if (post.Attachment != null)
                             {
-                                <div class="d-flex align-items-center mb-3 border-bottom border-1">
-                                    <img src="@commentVm.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @commentVm.UserName" style="width: 50px; height: auto;">
-                                    <div>
-                                        <strong>@commentVm.UserName</strong>
-                                        <p>@commentVm.Content</p>
-                                    </div>
-                                </div>
+                                <img src="@post.Attachment" class="w-100 px-0" alt="image post" />
                             }
-                        }
-                        <div class="pt-0">
-                            <form method="post" asp-controller="Home" asp-action="AddComment">
-                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                <div class="float-end">
-                                    <div>
-                                        <a class="btn btn-primary" asp-controller="Post" asp-action="AddComment" asp-route-postId=@post.Id>
-                                            Comment
-                                        </a>
+                        </div>
+                        <div class="card-footer bg-white">
+                            @if (post.Comments.Count > 0)
+                            {
+                                <h5 class="mb-3">Comments</h5>
+                                foreach (CommentViewModel commentVm in post.Comments)
+                                {
+                                    <div class="d-flex align-items-center mb-3 border-bottom border-1">
+                                        <img src="@commentVm.UserProfilePicture" class="rounded-circle me-2" alt="Foto del usuario @commentVm.UserName" style="width: 50px; height: 50px;">
+                                        <div>
+                                            <strong>@commentVm.UserName</strong>
+                                            <p>@commentVm.Content</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
+                                }
+                            }
+                            <div class="pt-0">
+                                <form method="post" asp-controller="Home" asp-action="AddComment">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="float-end">
+                                        <div>
+                                            <a class="btn btn-primary" asp-controller="Post" asp-action="AddComment" asp-route-postId=@post.Id>
+                                                Comment
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
 
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
         </div>
     </div>
