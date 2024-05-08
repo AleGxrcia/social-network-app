@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SocialNetwork.Infrastructure.Persistence\SocialNetwork.Infrastructure.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\ProjectImages\" />
+  </ItemGroup>
+
 </Project>
