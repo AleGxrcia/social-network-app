@@ -45,8 +45,18 @@ To run this project, you'll need:
 1. Clone the repository or download the project.
 2. Open the project in Visual Studio.
 3. Update the database connection string in `appsettings.json` to match your SQL Server setup.
-4. Open Package Manager Console in Visual Studio and run `Update-Database` to apply migrations.
-5. Run the project and access it in your browser.
+4. Update the mail settings in `appsettings.json` with your SMTP server details for email functionalities:
+   ```json
+   "MailSettings": {
+     "EmailFrom": "tu_correo@gmail.com",
+     "SmtpHost": "smtp.gmail.com",
+     "SmtpPort": 587,
+     "SmtpUser": "tu_correo@gmail.com",
+     "SmtpPass": "tu_contraseña_de_app_en_google",
+     "DisplayName": "Social Network mail"
+   }
+5. Open Package Manager Console in Visual Studio and run `Update-Database` to apply migrations.
+6. Run the project and access it in your browser.
 
 ## Project Screenshots
 
